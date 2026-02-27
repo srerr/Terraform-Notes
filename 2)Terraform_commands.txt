@@ -1,0 +1,80 @@
+=>source ../.env  # load environment variables from .env file
+    example: source ../.env
+             #the .env file should contain the following variables:
+             AWS_ACCESS_KEY_ID=your_access_key_id
+             AWS_SECRET_ACCESS_KEY=your_secret_access_key
+             AWS_DEFAULT_REGION=your_default_region
+# Terraform Commands:
+--------------------- 
+    1. terraform init: Initializes a Terraform working directory, downloading necessary provider plugins and setting up the backend.
+        EXAMPLE: terraform init
+                terraform init -backend-config="bucket=my-terraform-state" -backend-config="key=state.tfstate" -backend-config="region=us-west-2"  # to specify backend configuration during initialization
+                terraform init -upgrade  # to upgrade provider plugins to the latest version
+                terraform init -reconfigure  # to reconfigure the backend settings 
+                terraform init -input=false  # to disable interactive prompts during initialization
+                terraform init -get-plugins=false  # to skip downloading provider plugins during initialization (useful if you have already downloaded them)   
+                    terraform init -verify-plugins=false  # to skip verifying the integrity of provider plugins during initialization (use with caution)    
+                    terraform init -no-color  # to disable colored output during initialization 
+                    terraform init -lock=false  # to disable state locking during initialization (use with caution) 
+                    terraform init -lock-timeout=0s  # to set the lock timeout to zero, which means that Terraform will wait indefinitely for the lock to be released (use with caution)    
+                    terraform init -backend=false  # to skip backend initialization (useful for testing or when you want to manage the state file manually) 
+                    terraform init -migrate-state  # to automatically migrate the state file to the new backend configuration if it has changed since the last initialization
+                    terraform init -backend-config="dev.s3.tfbackend"  # to specify a backend configuration file during initialization  
+    2. terraform plan: Creates an execution plan, showing what actions Terraform will take to achieve the desired state defined in the configuration files.
+        EXAMPLE: terraform plan
+                terraform plan -out=plan.out  # to save the execution plan to a file for later use with terraform apply
+                terraform plan -var="instance_type=t2.micro"  # to pass variables directly in the command line
+                terraform plan -var-file="variables.tfvars"  # to pass variables from a file
+                terraform plan -target=aws_instance.example  # to target specific resources for planning
+                terraform plan -refresh=false  # to skip refreshing the state before planning
+                terraform plan -destroy  # to create a plan for destroying resources instead of creating/updating them
+    3. terraform apply: Applies the changes required to reach the desired state of the configuration, as defined in the configuration files.
+        EXAMPLE:        terraform apply
+                        terraform apply plan.out  # to apply the previously saved execution plan
+                        terraform apply -var="instance_type=t2.micro"  # to pass variables directly in the command line
+                        terraform apply -var-file="variables.tfvars"  # to pass variables from a file
+                        terraform apply -target=aws_instance.example  # to target specific resources for applying changes   
+                        terraform apply -refresh=false  # to skip refreshing the state before applying changes
+                        terraform apply -destroy  # to apply a plan for destroying resources instead of creating/updating them  
+                        terraform apply -auto-approve  # to skip the interactive approval step before applying changes
+    4. terraform destroy: Destroys all the resources managed by the Terraform configuration, effectively tearing down the infrastructure.
+        EXAMPLE: terraform destroy
+    5. terraform fmt: Formats the Terraform configuration files to a canonical format and style.
+        EXAMPLE: terraform fmt
+                terraform fmt -recursive  # to format all files in the directory and subdirectories
+    6. terraform validate: Validates the Terraform configuration files for syntax and internal consistency.
+        EXAMPLE: terraform validate
+    7. terraform show: Displays the current state of the infrastructure or the execution plan.
+        EXAMPLE: terraform show
+                terraform show plan.out  # to display the saved execution plan
+    8. terraform state: Manages the Terraform state file, allowing you to view, modify, or remove resources from the state.
+        EXAMPLE: terraform state list
+    9. terraform import: Imports existing infrastructure into Terraform management.
+        EXAMPLE: terraform import aws_instance.example i-1234567890abcdef0
+    10. terraform output: Displays the output values defined in the Terraform configuration after applying changes.
+        EXAMPLE: terraform output
+
+    11. terraform graph: Generates a visual representation of the Terraform resources and their dependencies.
+        EXAMPLE: terraform graph | dot -Tpng > graph.png  # to generate a PNG image of the resource graph using Graphviz
+    12. terraform providers: Lists the providers used in the Terraform configuration and their versions.
+        EXAMPLE: terraform providers
+    13. terraform version: Displays the version of Terraform being used.
+        EXAMPLE: terraform version
+    14. terraform workspace: Manages multiple workspaces, allowing you to create and switch between different environments or configurations.
+        EXAMPLE: terraform workspace list
+                terraform workspace new dev  # to create a new workspace named "dev"
+                terraform workspace select dev  # to switch to the "dev" workspace
+                terraform workspace delete dev  # to delete the "dev" workspace
+    15. terraform login: Authenticates Terraform with a remote service, such as Terraform Cloud or Terraform Enterprise, to manage state and run operations remotely.
+        EXAMPLE: terraform login
+    16. terraform logout: Logs out of a remote service that Terraform is authenticated with.
+        EXAMPLE: terraform logout
+    17. terraform refresh: Updates the Terraform state file with the current state of the infrastructure, without making any changes to the actual resources.
+        EXAMPLE: terraform refresh
+    18. terraform taint: Marks a resource as tainted, which means that it will be destroyed and recreated during the next apply operation.
+        EXAMPLE: terraform taint aws_instance.example
+    19. terraform untaint: Removes the tainted status from a resource, allowing it to be managed normally again.
+        EXAMPLE: terraform untaint aws_instance.example
+    20. terraform fmt: Formats the Terraform configuration files to a canonical format and style.
+        EXAMPLE: terraform fmt
+                terraform fmt -recursive  # to format all files in the directory and subdirectories
