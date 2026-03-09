@@ -1,0 +1,95 @@
+#  Terraform Input Variables:
+------------------------------
+    - Input variables in Terraform allow you to parameterize your configurations, making them more flexible and reusable. They enable you to define values that can be passed in at runtime, allowing you to customize the behavior of your Terraform modules without modifying the code.
+
+        # Example of defining an input variable:
+        --------------------------------------
+            ```hcl
+            variable "instance_type" {
+            description = "The type of EC2 instance to create"
+            type        = string
+            default     = "t2.micro"
+            }
+            resource "aws_instance" "example" {
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = var.instance_type
+            }
+            ```
+            - In this example, an input variable named `instance_type` is defined with a description, type, and default value. The variable is then used in the `aws_instance` resource to specify the instance type for the EC2 instance being created. Users can override the default value by providing a different value for `instance_type` when running Terraform.    
+        # Example of defining a variable with validation rules:
+        ------------------------------------------------------
+            ```hcl
+            variable "environment" {
+            description = "The deployment environment (e.g., dev, staging, prod)"
+            type        = string
+            validation {
+                condition     = contains(["dev", "staging", "prod"], var.environment)
+                error_message = "The environment variable must be one of: dev, staging, prod."
+            }
+            }
+            resource "aws_instance" "example" {
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = "t2.micro"
+            tags = {
+                Environment = var.environment
+            }
+            }
+            ```
+            - In this example, an input variable named `environment` is defined with a validation rule that ensures the value provided is one of "dev", "staging", or "prod". If a user tries to set the `environment` variable to a value that does not meet this condition, Terraform will return an error with the specified error message. The variable is then used to tag the EC2 instance with the appropriate environment.  
+        # Example of defining a variable with a list type:
+        ------------------------------------------------------
+            ```hcl
+            variable "allowed_ips" {
+            description = "A list of allowed IP addresses for SSH access"
+            type        = list(string)
+            default     = ["10.0.0.0/8"]
+            }
+            resource "aws_security_group" "example" {
+            name        = "example-security-group"
+            description = "Allow SSH access from specified IPs"
+            ingress {
+                from_port   = 22
+                to_port     = 22
+                protocol    = "tcp"
+                cidr_blocks = var.allowed_ips
+            }
+            }
+            ```
+            - In this example, an input variable named `allowed_ips` is defined as a list of strings, with a default value of `["10.0.0.0/8"]`. The variable is then used in the `aws_security_group` resource to specify the CIDR blocks that are allowed to access the EC2 instance via SSH. Users can override the default value by providing a different list of IP addresses when running Terraform.   
+        # Example of defining a variable with a map type:
+        ------------------------------------------------------
+            ```hcl
+            variable "instance_tags" {
+            description = "A map of tags to apply to the EC2 instance"
+            type        = map(string)
+            default     = {
+                Environment = "dev"
+                Owner       = "team-a"
+            }
+            }
+            resource "aws_instance" "example" {
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = "t2.micro"
+            tags          = var.instance_tags
+            }
+            ```
+            - In this example, an input variable named `instance_tags` is defined as a map of strings, with a default value that includes two tags: "Environment" and "Owner". The variable is then used in the `aws_instance` resource to apply the specified tags to the EC2 instance. Users can override the default value by providing a different map of tags when running Terraform.      
+        # Example of defining a variable with a sensitive value:
+        ------------------------------------------------------
+            ```hcl
+            variable "db_password" {
+            description = "The password for the database"
+            type        = string
+            sensitive   = true
+            }
+            resource "aws_db_instance" "example" {
+            identifier = "example-db"
+            engine     = "mysql"
+            username   = "admin"
+            password   = var.db_password
+            }
+            ```
+            - In this example, an input variable named `db_password` is defined as a string and marked as sensitive. This means that the value of this variable will not be displayed in the Terraform output or logs, providing an extra layer of security for sensitive information. The variable is then used in the `aws_db_instance` resource to set the password for the database instance. Users can provide the value for `db_password` when running Terraform, and it will be handled securely.    
+        - Overall, Terraform input variables provide a powerful way to parameterize your configurations, allowing you to create more flexible and reusable infrastructure as code. By defining variables with appropriate types, validation rules, and sensitivity settings, you can ensure that your Terraform configurations are both robust and secure.  
+
+        
