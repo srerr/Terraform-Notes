@@ -92,4 +92,153 @@
             - In this example, an input variable named `db_password` is defined as a string and marked as sensitive. This means that the value of this variable will not be displayed in the Terraform output or logs, providing an extra layer of security for sensitive information. The variable is then used in the `aws_db_instance` resource to set the password for the database instance. Users can provide the value for `db_password` when running Terraform, and it will be handled securely.    
         - Overall, Terraform input variables provide a powerful way to parameterize your configurations, allowing you to create more flexible and reusable infrastructure as code. By defining variables with appropriate types, validation rules, and sensitivity settings, you can ensure that your Terraform configurations are both robust and secure.  
 
+
+    # Terraform Input Variable Types:
+    --------------------------------
+        - Terraform supports several types of input variables, including:
+            1. String: A single string value.
+            2. Number: A numeric value (integer or float).
+            3. Boolean: A true or false value.
+            4. List: An ordered collection of values of the same type.
+            5. Map: A collection of key-value pairs where the keys are strings and the values can be of any type.
+            6. Object: A complex type that allows you to define a structured variable with multiple attributes of different types.
+            7. Tuple: An ordered collection of values of different types, where the order and types of the values are defined in the variable declaration.  
+        - Each variable type has specific syntax and usage patterns in Terraform configurations, allowing you to define and use variables in a way that best suits your infrastructure needs. By leveraging the appropriate variable types, you can create more flexible and maintainable Terraform configurations. 
+        
+    # Example of defining variables with different types:
+        ----------------------------------------------------
+        1) String variable:
+            ```hcl
+            variable "instance_name" {
+            description = "The name of the EC2 instance"
+            type        = string
+            default     = "example-instance"
+            }
+            resource "aws_instance" "example" {
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = "t2.micro"
+            tags = {
+                Name = var.instance_name
+            }
+            }
+            ```
+        2) Number variable:
+            ```hcl
+            variable "instance_count" {
+            description = "The number of EC2 instances to create"
+            type        = number
+            default     = 1
+            }
+            resource "aws_instance" "example" {
+            count         = var.instance_count
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = "t2.micro"
+            }
+            ```
+        3) Boolean variable:
+            ```hcl
+            variable "enable_monitoring" {
+            description = "Whether to enable monitoring for the EC2 instance"
+            type        = bool
+            default     = false
+            }
+            resource "aws_instance" "example" {
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = "t2.micro"
+            monitoring    = var.enable_monitoring
+            }
+            ```
+        4) List variable:
+            ```hcl
+            variable "allowed_ports" {
+            description = "A list of allowed ports for the security group"
+            type        = list(number)
+            default     = [22, 80, 443]
+            }
+            resource "aws_security_group" "example" {
+            name        = "example-security-group"
+            description = "Allow access to specified ports"
+            ingress {
+                from_port   = var.allowed_ports[0]
+                to_port     = var.allowed_ports[0]
+                protocol    = "tcp"
+                cidr_blocks = ["0.0.0.0/0"]
+            }
+            ingress {
+                from_port   = var.allowed_ports[1]
+                to_port     = var.allowed_ports[1]
+                protocol    = "tcp"
+                cidr_blocks = ["0.0.0.0/0"]
+            }
+            ingress {
+                from_port   = var.allowed_ports[2]
+                to_port     = var.allowed_ports[2]
+                protocol    = "tcp"
+                cidr_blocks = ["0.0.0.0/0"]
+            }
+            }
+            ```
+        5) Map variable:
+            ```hcl
+            variable "instance_tags" {
+            description = "A map of tags to apply to the EC2 instance"
+            type        = map(string)
+            default     = {
+                Environment = "dev"
+                Owner       = "team-a"
+            }
+            }
+            resource "aws_instance" "example" {
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = "t2.micro"
+            tags          = var.instance_tags
+            }
+            ```
+        6) Object variable:
+            ```hcl
+            variable "instance_config" {
+            description = "A configuration object for the EC2 instance"
+            type = object({
+                instance_type = string
+                ami           = string
+                tags          = map(string)
+            })
+            default = {
+                instance_type = "t2.micro"
+                ami           = "ami-0c55b159cbfafe1f0"
+                tags          = {
+                    Environment = "dev"
+                    Owner       = "team-a"
+                }
+            }
+            }
+            resource "aws_instance" "example" {
+            ami           = var.instance_config.ami
+            instance_type = var.instance_config.instance_type
+            tags          = var.instance_config.tags
+            }
+            ```
+        7) Tuple variable:
+            ```hcl
+            variable "instance_settings" {
+            description = "A tuple of instance settings"
+            type = tuple([string, number, bool])
+            default = ["t2.micro", 1, false]
+            }
+            resource "aws_instance" "example" {
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = var.instance_settings[0]
+            count         = var.instance_settings[1]
+            monitoring    = var.instance_settings[2]
+            }
+            ```
+
+    # Terraform Variable precedence:
+    --------------------------------
+        - Terraform has a specific order of precedence for variable values, which determines how values are resolved when multiple sources are provided. The order of precedence is as follows:
+            1. Command-line flags: Values provided directly on the command line when running Terraform (e.g., `terraform apply -var="instance_type=t2.large"`).
+            2. Environment variables: Values set in the environment with the `TF_VAR_` prefix (e.g., `export TF_VAR_instance_type=t2.large`).
+            3. Variable definitions file: Values defined in a `.tfvars` file (e.g., `terraform apply -var-file="variables.tfvars"`).
+            4. Default values: Values specified in the variable declaration within the Terraform configuration (e.g., `default = "t2.micro"`).
+        - When Terraform resolves variable values, it will use the value from the highest precedence source available. If a variable is defined in multiple places, the value from the source with the highest precedence will be used. This allows for flexibility in how you provide variable values, enabling you to override defaults and customize your Terraform configurations as needed.    
         
