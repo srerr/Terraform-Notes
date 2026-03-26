@@ -25,7 +25,7 @@
             validation {
                 condition     = contains(["dev", "staging", "prod"], var.environment)
                 error_message = "The environment variable must be one of: dev, staging, prod."
-            }
+            }  
             }
             resource "aws_instance" "example" {
             ami           = "ami-0c55b159cbfafe1f0"
@@ -240,5 +240,66 @@
             2. Environment variables: Values set in the environment with the `TF_VAR_` prefix (e.g., `export TF_VAR_instance_type=t2.large`).
             3. Variable definitions file: Values defined in a `.tfvars` file (e.g., `terraform apply -var-file="variables.tfvars"`).
             4. Default values: Values specified in the variable declaration within the Terraform configuration (e.g., `default = "t2.micro"`).
-        - When Terraform resolves variable values, it will use the value from the highest precedence source available. If a variable is defined in multiple places, the value from the source with the highest precedence will be used. This allows for flexibility in how you provide variable values, enabling you to override defaults and customize your Terraform configurations as needed.    
+        - When Terraform resolves variable values, it will use the value from the highest precedence source available. If a variable is defined in multiple places, the value from the source with the highest precedence will be used. This allows for flexibility in how you provide variable values, enabling you to override defaults and customize your Terraform configurations as needed.    \
+    
+
+# Terraform Local Variables:
+-------------------------------
+    - Local variables in Terraform are used to define values that are computed from other variables or resources within the same module. They are not meant to be set by users but are instead used to simplify complex expressions and improve readability within the Terraform configuration. Local variables can be used to store intermediate values, perform calculations, or create more descriptive names for values that are derived from other variables or resources. 
+        # Example of defining a local variable:
+        --------------------------------------
+            ```hcl
+            variable "instance_type" {
+            description = "The type of EC2 instance to create"
+            type        = string
+            default     = "t2.micro"
+            }
+            locals {
+            instance_name = "${var.instance_type}-example"
+            }
+            resource "aws_instance" "example" {
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = var.instance_type
+            tags = {
+                Name = local.instance_name
+            }
+            }
+            ```
+            - In this example, a local variable named `instance_name` is defined using the value of the input variable `instance_type`. The local variable is then used in the `aws_instance` resource to set the Name tag for the EC2 instance. This allows for a more descriptive and dynamic naming convention based on the instance type.
+        # Example of using local variables for calculations:
+        ------------------------------------------------------
+            ```hcl
+            variable "instance_count" {
+            description = "The number of EC2 instances to create"
+            type        = number
+            default     = 1
+            }
+            locals {
+            total_instances = var.instance_count * 2
+            }
+            resource "aws_instance" "example" {
+            count         = local.total_instances
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = "t2.micro"
+            }
+            ```
+            - In this example, a local variable named `total_instances` is defined as the result of multiplying the input variable `instance_count` by 2. The local variable is then used in the `aws_instance` resource to determine how many EC2 instances to create. This allows for dynamic scaling of resources based on user input while keeping the logic for calculating the total number of instances encapsulated within the local variable.  
+        # Example of using local variables for conditional logic:
+        ------------------------------------------------------
+            ```hcl
+            variable "environment" {
+            description = "The deployment environment (e.g., dev, staging, prod)"
+            type        = string
+            default     = "dev"
+            }
+            locals {
+            is_production = var.environment == "prod"
+            }
+            resource "aws_instance" "example" {
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = local.is_production ? "t2.large" : "t2.micro"
+            }
+            ```
+            - In this example, a local variable named `is_production` is defined as a boolean value that checks if the input variable `environment` is equal to "prod". The local variable is then used in the `aws_instance` resource to determine the instance type based on whether the environment is production or not. This allows for conditional logic to be applied within the Terraform configuration, making it more flexible and adaptable to different deployment scenarios.  
+        - Overall, local variables in Terraform provide a powerful way to simplify complex expressions, perform calculations, and improve the readability of your configurations. By using local variables, you can create more maintainable and understandable Terraform code, while also keeping the logic for derived values encapsulated within the module. 
         

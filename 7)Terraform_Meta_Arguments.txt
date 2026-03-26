@@ -1,0 +1,92 @@
+# Terraform Meta-Arguments:
+=============================
+    - `depends_on`: This argument allows you to specify explicit dependencies between resources. It ensures that the specified resources are created or destroyed in a specific order. For example, if Resource A depends on Resource B, you can use `depends_on` to ensure that Resource B is created before Resource A.   
+    - `count`: This argument allows you to create multiple instances of a resource based on a specified count. It is useful when you want to create multiple similar resources without duplicating the code. For example, if you want to create three instances of a virtual machine, you can use `count` to specify the number of instances.
+    - `for_each`: This argument allows you to create multiple instances of a resource based on a map or set of values. It is similar to `count`, but it provides more flexibility by allowing you to use keys and values to create resources. For example, if you have a list of server names, you can use `for_each` to create a resource for each server name in the list.
+    - `lifecycle`: This argument allows you to define the lifecycle behavior of a resource. It includes options such as `create_before_destroy`, which ensures that a new resource is created before the old resource is destroyed, and `prevent_destroy`, which prevents a resource from being destroyed. This is useful for resources that are critical and should not be accidentally deleted.
+    - `provider`: This argument allows you to specify a different provider for a resource. This is useful when you want to use multiple providers in the same Terraform configuration. For example, if you want to use both AWS and Azure providers in the same configuration, you can specify the provider for each resource using the `provider` argument.
+    - `provisioner`: This argument allows you to specify a provisioner for a resource. Provisioners are used to execute scripts or commands on the resource after it has been created. For example, you can use a provisioner to install software or configure settings on a virtual machine after it has been created. 
+    - `connection`: This argument is used in conjunction with provisioners to specify how to connect to the resource. It includes options such as `type`, which specifies the connection type (e.g., SSH or WinRM), and `host`, which specifies the hostname or IP address of the resource. This is necessary for provisioners to execute commands on the resource after it has been created.   
+    - `count.index`: This is a special variable that is available when using the `count` meta-argument. It represents the index of the current instance being created. For example, if you are creating three instances of a resource using `count`, `count.index` will be 0 for the first instance, 1 for the second instance, and 2 for the third instance. This can be useful for generating unique names or configurations for each instance.   
+    - `for_each.key`: This is a special variable that is available when using the `for_each` meta-argument. It represents the key of the current instance being created. For example, if you are creating resources based on a map of server names, `for_each.key` will represent the current server name being processed. This can be useful for generating unique names or configurations for each instance based on the key. 
+    - `for_each.value`: This is a special variable that is available when using the `for_each` meta-argument. It represents the value of the current instance being created. For example, if you are creating resources based on a map of server names and their corresponding IP addresses, `for_each.value` will represent the current IP address being processed. This can be useful for generating unique configurations for each instance based on the value.  
+    - `lifecycle.prevent_destroy`: This is a specific option within the `lifecycle` meta-argument that prevents a resource from being destroyed. When this option is set to `true`, Terraform will not allow the resource to be deleted, even if it is no longer needed or if there are changes that would require its destruction. This is useful for critical resources that should not be accidentally deleted, such as databases or production servers. 
+    - `lifecycle.create_before_destroy`: This is a specific option within the `lifecycle` meta-argument that ensures a new resource is created before the old resource is destroyed. When this option is set to `true`, Terraform will first create the new resource and then destroy the old resource, ensuring that there is no downtime or disruption in service. This is useful for resources that require continuous availability, such as load balancers or virtual machines. 
+    - `lifecycle.ignore_changes`: This is a specific option within the `lifecycle` meta-argument that allows you to ignore changes to specific attributes of a resource. When this option is set, Terraform will not attempt to update the resource if there are changes to the specified attributes. This can be useful when there are certain attributes that are managed outside of Terraform or when you want to prevent unnecessary updates to a resource. For example, if you have a resource that is managed by an external system and you want to prevent Terraform from trying to update it, you can use `lifecycle.ignore_changes` to specify the attributes that should be ignored.  
+    - `lifecycle.replace_triggered_by`: This is a specific option within the `lifecycle` meta-argument that allows you to specify other resources or attributes that, when changed, will trigger the replacement of the resource. When this option is set, if any of the specified resources or attributes change, Terraform will destroy and recreate the resource. This can be useful when there are certain dependencies or conditions that require a resource to be replaced when specific changes occur. For example, if you have a virtual machine that depends on a specific network configuration, you can use `lifecycle.replace_triggered_by` to specify that if the network configuration changes, the virtual machine should be replaced.   
+    - `lifecycle.postpone_destroy`: This is a specific option within the `lifecycle` meta-argument that allows you to postpone the destruction of a resource until the next apply. When this option is set, if a resource is marked for destruction, it will not be destroyed immediately but will instead be marked for destruction and will be destroyed during the next apply. This can be useful when you want to review the changes before they are applied or when you want to ensure that there are no unintended consequences of destroying a resource. For example, if you have a critical resource that you want to review before it is destroyed, you can use `lifecycle.postpone_destroy` to ensure that it is not destroyed until you have had a chance to review the changes. 
+    - `lifecycle.prevent_destroy`: This is a specific option within the `lifecycle` meta-argument that prevents a resource from being destroyed. When this option is set to `true`, Terraform will not allow the resource to be deleted, even if it is no longer needed or if there are changes that would require its destruction. This is useful for critical resources that should not be accidentally deleted, such as databases or production servers. 
+    - `lifecycle.create_before_destroy`: This is a specific option within the `lifecycle` meta-argument that ensures a new resource is created before the old resource is destroyed. When this option is set to `true`, Terraform will first create the new resource and then destroy the old resource, ensuring that there is no downtime or disruption in service. This is useful for resources that require continuous availability, such as load balancers or virtual machines. 
+    - `lifecycle.ignore_changes`: This is a specific option within the `lifecycle` meta-argument that allows you to ignore changes to specific attributes of a resource. When this option is set, Terraform will not attempt to update the resource if there are changes to the specified attributes. This can be useful when there are certain attributes that are managed outside of Terraform or when you want to prevent unnecessary updates to a resource. For example, if you have a resource that is managed by an external system and you want to prevent Terraform from trying to update it, you can use `lifecycle.ignore_changes` to specify the attributes that should be ignored.  
+    - `lifecycle.replace_triggered_by`: This is a specific option within the `lifecycle` meta-argument that allows you to specify other resources or attributes that, when changed, will trigger the replacement of the resource. When this option is set, if any of the specified resources or attributes change, Terraform will destroy and recreate the resource. This can be useful when there are certain dependencies or conditions that require a resource to be replaced when specific changes occur. For example, if you have a virtual machine that depends on a specific network configuration, you can use `lifecycle.replace_triggered_by` to specify that if the network configuration changes, the virtual machine should be replaced.   
+
+    # examples of each meta-arguments:
+    ----------------------------------
+    # depends_on example:
+        resource "aws_instance" "example" {
+        ami           = "ami-0c55b159cbfafe1f0"
+        instance_type = "t2.micro"
+        }
+        resource "aws_security_group" "example" {
+        name        = "example-sg"
+        description = "Example security group"
+        }
+        resource "aws_instance" "example_with_dependency" {
+        ami           = "ami-0c55b159cbfafe1f0"
+        instance_type = "t2.micro"
+        depends_on    = [aws_security_group.example]
+        }
+    # count example:
+        resource "aws_instance" "example" {
+        count         = 3
+        ami           = "ami-0c55b159cbfafe1f0"
+        instance_type = "t2.micro"
+        }
+    # for_each example:
+        resource "aws_instance" "example" {
+        for_each      = toset(["server1", "server2", "server3"])
+        ami           = "ami-0c55b159cbfafe1f0"
+        instance_type = "t2.micro"
+        tags = {
+            Name = each.key
+        }
+        }
+    # lifecycle example:
+        resource "aws_instance" "example" {
+        ami           = "ami-0c55b159cbfafe1f0"
+        instance_type = "t2.micro"
+        lifecycle {
+            create_before_destroy = true
+            prevent_destroy       = true
+            ignore_changes        = [tags]
+            replace_triggered_by  = [aws_security_group.example]
+            postpone_destroy      = true
+        }
+        }
+    # provider example:
+        provider "aws" {
+        region = "us-west-2"
+        }
+        resource "aws_instance" "example" {
+        ami           = "ami-0c55b159cbfafe1f0"
+        instance_type = "t2.micro"
+        provider      = aws
+        }
+    # provisioner example:
+        resource "aws_instance" "example" {
+        ami           = "ami-0c55b159cbfafe1f0"
+        instance_type = "t2.micro"
+        provisioner "remote-exec" {
+            inline = [
+            "sudo apt-get update",
+            "sudo apt-get install -y nginx"
+            ]
+        }
+        connection {
+            type        = "ssh"
+            host        = self.public_ip
+            user        = "ubuntu"
+            private_key = file("~/.ssh/id_rsa")
+        }
+        }   
+    # 
